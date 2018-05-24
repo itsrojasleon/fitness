@@ -1,4 +1,9 @@
-export function getMetricMetaInfo (metric) {
+import React from 'react';
+import { View } from 'react-native'
+import { FontAwesome, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { white } from './colors';
+
+export function getMetricMetaInfo(metric) {
   const info = {
     run: {
       displayName: 'Run',
@@ -101,7 +106,6 @@ export function isBetween (num, x, y) {
   if (num >= x && num <= y) {
     return true
   }
-
   return false
 }
 
@@ -138,3 +142,4 @@ export function timeToString (time = Date.now()) {
   const todayUTC = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
   return todayUTC.toISOString().split('T')[0]
 }
+
