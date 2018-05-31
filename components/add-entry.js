@@ -6,6 +6,8 @@ import {
 } from 'react-native';
 import { getMetricMetaInfo, timeToString } from '../utils/helpers';
 
+import { Ionicons } from '@expo/vector-icons';
+
 import UdaciSlider from './udaci-slider';
 import UdaciSteppers from './udaci-steppers';
 import DateHeader from './date-header';
@@ -70,8 +72,26 @@ export default class AddEntry extends Component {
     // Save to DB
     // Clearn local notification
   }
+  onReset = () => {
+    const key = timeToString();
+  }
   render() {
     const metaInfo = getMetricMetaInfo();
+
+    if (this.props.alreadyLogged) {
+      return (
+        <View>
+          <Ionicons
+            name="ios-happy-outline"
+            size={100}
+          />
+          <Text>You already logged your information for today</Text>
+          <TextButton onPress={this.onReset}>
+            Reset
+          </TextButton>
+        </View>
+      );
+    }
     return (
       <View>
         <DateHeader date={(new Date()).toLocaleString()} />
