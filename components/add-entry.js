@@ -1,27 +1,20 @@
-import React, { Component } from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Text,
-} from 'react-native';
-import { getMetricMetaInfo, timeToString } from '../utils/helpers';
-
-import { Ionicons } from '@expo/vector-icons';
-
-import UdaciSlider from './udaci-slider';
-import UdaciSteppers from './udaci-steppers';
+import React, { Component } from 'react'
+import { View, TouchableOpacity, Text } from 'react-native'
+import { getMetricMetaInfo, timeToString } from '../utils/helpers'
+import UdaciSlider from './udaci-slider'
+import UdaciSteppers from './udaci-steppers'
 import DateHeader from './date-header';
+import { Ionicons } from '@expo/vector-icons'
+import TextButton from './text-button';
+import { submitEntry, removeEntry } from '../utils/api'
 
-import { submitEntry, removeEntry } from '../utils/api';
-
-function SubmitBtn({ onPress }) {
+function SubmitBtn ({ onPress }) {
   return (
-    <TouchableOpacity onPress={onPress}>
-      <Text>
-        Submit
-      </Text>
+    <TouchableOpacity
+      onPress={onPress}>
+        <Text>SUBMIT</Text>
     </TouchableOpacity>
-  );
+  )
 }
 
 export default class AddEntry extends Component {
@@ -31,76 +24,82 @@ export default class AddEntry extends Component {
     swim: 0,
     sleep: 0,
     eat: 0,
-  };
+  }
   increment = (metric) => {
-    const { max, step } = getMetricMetaInfo(metric);
+    const { max, step } = getMetricMetaInfo(metric)
+
     this.setState((state) => {
-      const count = state[metric] + step;
+      const count = state[metric] + step
+
       return {
         ...state,
         [metric]: count > max ? max : count,
       }
-    });
+    })
   }
   decrement = (metric) => {
-    const { step } = getMetricMetaInfo(metric);
     this.setState((state) => {
-      const count = state[metric] - step;
+      const count = state[metric] - getMetricMetaInfo(metric).step
+
       return {
         ...state,
         [metric]: count < 0 ? 0 : count,
       }
-    });
+    })
   }
-  slide = (metric, slide) => {
+  slide = (metric, value) => {
     this.setState(() => ({
-      [metric]: value,
+      [metric]: value
     }))
   }
-  onSubmit = () => {
-    const key = timeToString();
-    const entry = this.state;
+  submit = () => {
+    const key = timeToString()
+    const entry = this.state
 
     // Update Redux
 
-    this.setState(() => ({
-      run: 0,
-      bike: 0,
-      swim: 0,
-      sleep: 0,
-      eat: 0,
-    }));
-    // Navigate to Home
-    submitEntry({ key, entry });
-    // Clearn local notification
+    this.setState(() => ({ run: 0, bike: 0, swim: 0, sleep: 0, eat: 0 }))
+
+    // Navigate to home
+
+    submitEntry({ key, entry })
+
+    // Clear local notification
   }
-  onReset = () => {
-    const key = timeToString();
-    removeEntry(key);
+  reset = () => {
+    const key = timeToString()
+
+    // Update Redux
+
+    // Route to Home
+
+    removeEntry(key)
   }
   render() {
-    const metaInfo = getMetricMetaInfo();
+    const metaInfo = getMetricMetaInfo()
 
     if (this.props.alreadyLogged) {
       return (
         <View>
           <Ionicons
-            name="ios-happy-outline"
+            name={'ios-happy-outline'}
             size={100}
           />
-          <Text>You already logged your information for today</Text>
-          <TextButton onPress={this.onReset}>
+          <Text>You already logged your information for today.</Text>
+          <TextButton onPress={this.reset}>
             Reset
           </TextButton>
         </View>
-      );
+      )
     }
+
     return (
       <View>
-        <DateHeader date={(new Date()).toLocaleString()} />
+        <DateHeader date={(new Date()).toLocaleDateString()}/>
         {Object.keys(metaInfo).map((key) => {
-          const { getIcon, type, ...rest } = metaInfo[key];
+          const { getIcon, type, ...rest } = metaInfo[key]
           const value = this.state[key]
+
           return (
             <View key={key}>
               {getIcon()}
@@ -112,16 +111,15 @@ export default class AddEntry extends Component {
                   />
                 : <UdaciSteppers
                     value={value}
-                    onIncrement={() => this.increment()}
-                    onDecrement={() => this.decrement()}
+                    onIncrement={() => this.increment(key)}
+                    onDecrement={() => this.decrement(key)}
                     {...rest}
-                  />
-              }
+                  />}
             </View>
-          );
+          )
         })}
-        <SubmitBtn onPress={this.onSubmit} />
+        <SubmitBtn onPress={this.submit} />
       </View>
-    );
+    )
   }
 }
