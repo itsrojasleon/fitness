@@ -12,6 +12,8 @@ import UdaciSlider from './udaci-slider';
 import UdaciSteppers from './udaci-steppers';
 import DateHeader from './date-header';
 
+import { submitEntry, removeEntry } from '../utils/api';
+
 function SubmitBtn({ onPress }) {
   return (
     <TouchableOpacity onPress={onPress}>
@@ -69,11 +71,12 @@ export default class AddEntry extends Component {
       eat: 0,
     }));
     // Navigate to Home
-    // Save to DB
+    submitEntry({ key, entry });
     // Clearn local notification
   }
   onReset = () => {
     const key = timeToString();
+    removeEntry(key);
   }
   render() {
     const metaInfo = getMetricMetaInfo();
