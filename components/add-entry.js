@@ -1,23 +1,26 @@
-import React, { Component } from 'react'
-import { View, TouchableOpacity, Text } from 'react-native'
-import { getMetricMetaInfo, timeToString } from '../utils/helpers'
-import UdaciSlider from './udaci-slider'
-import UdaciSteppers from './udaci-steppers'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { View, TouchableOpacity, Text, Platform, StyleSheet } from 'react-native';
+import { getMetricMetaInfo, timeToString } from '../utils/helpers';
+import UdaciSlider from './udaci-slider';
+import UdaciSteppers from './udaci-steppers';
 import DateHeader from './date-header';
-import { Ionicons } from '@expo/vector-icons'
+import { Ionicons } from '@expo/vector-icons';
 import TextButton from './text-button';
-import { submitEntry, removeEntry } from '../utils/api'
+import { submitEntry, removeEntry } from '../utils/api';
+import { white, purple } from '../utils/colors';
 
 function SubmitBtn ({ onPress }) {
   return (
     <TouchableOpacity
+      style={Platform.OS === 'ios' ? styles.iosSubmitBtn : styles.androidSubmitBtn}
       onPress={onPress}>
-        <Text>SUBMIT</Text>
+        <Text style={styles.submitBtnText}>SUBMIT</Text>
     </TouchableOpacity>
   )
 }
 
-export default class AddEntry extends Component {
+class AddEntry extends Component {
   state = {
     run: 0,
     bike: 0,
@@ -50,13 +53,15 @@ export default class AddEntry extends Component {
   slide = (metric, value) => {
     this.setState(() => ({
       [metric]: value
-    }))
+    }));
   }
   submit = () => {
     const key = timeToString()
     const entry = this.state
 
-    // Update Redux
+    this.props.dispatch(addEntry({
+      [key]: entry,
+    }));
 
     this.setState(() => ({ run: 0, bike: 0, swim: 0, sleep: 0, eat: 0 }))
 
@@ -69,7 +74,9 @@ export default class AddEntry extends Component {
   reset = () => {
     const key = timeToString()
 
-    // Update Redux
+    this.props.dispatch(addEntry({
+      [key]: getDailyReminderValue(),
+    }));
 
     // Route to Home
 
@@ -123,3 +130,47 @@ export default class AddEntry extends Component {
     )
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+
+  }
+  iosSubmitBtn: {
+    backgroundColor: purple,
+    padding: 10,
+    borderRadius: 10,
+    borderRadius: 7,
+    height: 45,
+    marginLeft: 40,
+    marginRight: 40,
+  },
+  androidSubmitBtn: {
+    backgroundColor: purple,
+    padding: 10,
+    paddingLeft: 30,
+    paddingRight: 30,
+    height: 45,
+    borderRadius: 2,
+    alignSelf: 'flex-end',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  submitBtnText: {
+    color: white,
+    fontSize: 22,
+    textAlign: 'center',
+  }
+});
+
+function mapStateToProps (state) {
+   const key = timeToString()
+
+   return {
+     alreadyLogged: state[key] && typeof state[key].today === 'undefined'
+   }
+ }
+
+export default connect(
+   mapStateToProps
+ )(AddEntry)
